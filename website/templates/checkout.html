@@ -1,0 +1,34 @@
+<head>
+      <title>Checkout</title>
+      <script src="https://js.stripe.com/v3/"></script>
+      <script type="text/javascript">
+        window.onload = function(e){
+            var stripe = Stripe('pk_test_MrafeP8AsKSMKCZFfHmp6Upc', {stripeAccount: '{{ developer_account }}'});
+
+            var cardButton = document.getElementById('card-button');
+            var clientSecret = cardButton.dataset.secret;
+
+            cardButton.addEventListener('click', function(ev) {
+              ev.preventDefault();
+              stripe.
+                confirmCardPayment(
+                    clientSecret
+                ).then(function(result) {
+                    if (result.error) {
+                        var errorElement = document.querySelector('.error');
+                        errorElement.textContent = result.error.message;
+                    } else {
+                        window.location.href = '/api/v1/success/1'
+                    }
+                });
+            });
+        }
+    </script>
+</head>
+
+<button id="card-button" data-secret="{{ client_secret }}">
+  Submit Payment
+</button>
+<div class="outcome">
+      <div class="error"></div>
+</div>
