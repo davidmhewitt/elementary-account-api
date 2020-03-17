@@ -146,6 +146,8 @@ def intent_do_charge():
         user = current_token.user
         customer_id = user.stripe_customer_id
         customer = stripe.Customer.retrieve(user.stripe_customer_id)
+    else:
+        customer = []
 
     args = request.args
 
@@ -155,19 +157,30 @@ def intent_do_charge():
           payment_method=args.get('payment_method'),
           stripe_account=args.get('stripe_account'),
         )
+    else:
+        payment_method = ""
 
     fee = math.ceil(int(args.get('amount')) * 0.3)
     if fee < 50:
         fee = 50
 
-    payment_intent = stripe.PaymentIntent.create(
-        amount=args.get('amount'),
-        currency='USD',
-        payment_method=payment_method,
-        payment_method_types=['card'],
-        application_fee_amount=fee,
-        stripe_account=args.get('stripe_account'),
-    )
+    if payment_method:
+        payment_intent = stripe.PaymentIntent.create(
+            amount=args.get('amount'),
+            currency='USD',
+            payment_method=payment_method,
+            payment_method_types=['card'],
+            application_fee_amount=fee,
+            stripe_account=args.get('stripe_account'),
+        )
+    else:
+        payment_intent = stripe.PaymentIntent.create(
+            amount=args.get('amount'),
+            currency='USD',
+            payment_method_types=['card'],
+            application_fee_amount=fee,
+            stripe_account=args.get('stripe_account'),
+        )
 
     return render_template('checkout.html', client_secret=payment_intent.client_secret, developer_account=args.get('stripe_account'))
 
