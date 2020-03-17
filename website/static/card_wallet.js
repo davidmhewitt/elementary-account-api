@@ -3,21 +3,8 @@ window.onload = function(e){
     var clientSecret = cardButton.dataset.secret;
     var account_id = cardButton.dataset.account;
 
-    var stripe = Stripe('pk_test_MrafeP8AsKSMKCZFfHmp6Upc', {stripeAccount: account_id});
+    var stripe = Stripe('pk_test_MrafeP8AsKSMKCZFfHmp6Upc');
 
-    stripe.retrievePaymentIntent (
-        clientSecret
-    ).then (function (result) {
-        if(result.error) {
-            var errorElement = document.querySelector('.error');
-            errorElement.textContent = result.error.message;
-        } else {
-            setupForm (result.paymentIntent, stripe);
-        }
-    });
-}
-
-function setupForm (intent, stripe) {
     var cardButton = document.getElementById('card-button');
     var clientSecret = cardButton.dataset.secret;
     var elements = stripe.elements();
@@ -28,57 +15,44 @@ function setupForm (intent, stripe) {
     var error = form.querySelector('.error');
     var errorMessage = error.querySelector('.message');
 
-    if (intent.status == "requires_payment_method" || intent.status == "requires_source") {
-        var instructions = document.getElementById('oneOff');
-        instructions.classList.add('visible');
+    var card = elements.create('card', {
+        iconStyle: 'solid',
+        style: {
+          base: {
+            iconColor: '#abacae',
+            color: '#333',
+            fontFamily: 'Open Sans, Segoe UI, sans-serif',
+            fontSize: '12px',
+            fontSmoothing: 'antialiased',
 
-        var card = elements.create('card', {
-            iconStyle: 'solid',
-            style: {
-              base: {
-                iconColor: '#abacae',
-                color: '#333',
-                fontFamily: 'Open Sans, Segoe UI, sans-serif',
-                fontSize: '12px',
-                fontSmoothing: 'antialiased',
-
-                ':-webkit-autofill': {
-                  color: '#fce883',
-                },
-                '::placeholder': {
-                  color: '#abacae',
-                },
-              },
-              invalid: {
-                iconColor: '#c6262e',
-                color: '#c6262e',
-              },
+            ':-webkit-autofill': {
+              color: '#fce883',
             },
-        });
+            '::placeholder': {
+              color: '#abacae',
+            },
+          },
+          invalid: {
+            iconColor: '#c6262e',
+            color: '#c6262e',
+          },
+        },
+    });
 
-        card.mount('#card-mount');
-        // Listen for errors from each Element, and show error messages in the UI.
-        card.on('change', function(event) {
-          if (event.error) {
-            error.classList.add('visible');
-            errorMessage.innerText = event.error.message;
-          } else {
-            error.classList.remove('visible');
-          }
-        });
+    card.mount('#card-mount');
+    // Listen for errors from each Element, and show error messages in the UI.
+    card.on('change', function(event) {
+      if (event.error) {
+        error.classList.add('visible');
+        errorMessage.innerText = event.error.message;
+      } else {
+        error.classList.remove('visible');
+      }
+    });
 
-        card.on('ready', function(event) {
-          form_container.classList.remove('submitting');
-        });
-    } else {
-        var fieldsets = form.querySelector('.formFields');
-        fieldsets.parentNode.removeChild(fieldsets);
-
-        var instructions = document.getElementById('savedPayment');
-        instructions.classList.add('visible');
-
-        form_container.classList.remove('submitting');
-    }
+    card.on('ready', function(event) {
+      form_container.classList.remove('submitting');
+    });
 
     function enableInputs() {
       Array.prototype.forEach.call(
@@ -141,27 +115,22 @@ function setupForm (intent, stripe) {
 
       // Gather additional customer data we may have collected in our form.
       var name = form.querySelector('#field-name');
-      var email = form.querySelector('#field-email');
 
-      var stripeData = {};
-      if (intent.status == "requires_payment_method" || intent.status == "requires_source") {
-        stripeData = {
+      stripe.confirmCardSetup(
+        clientSecret,
+        {
           payment_method: {
             card: card,
             billing_details: {
-              name: name.value
-            }
-          }
-        };
-      }
-
-      stripe.confirmCardPayment(
-          clientSecret, stripeData
+              name: name.value,
+            },
+          },
+        }
       ).then(function(result) {
         // Stop loading!
         form_container.classList.remove('submitting');
 
-        if (result.paymentIntent) {
+        if (result.setupIntent) {
           form_container.classList.add('submitted');
           setTimeout(function () {
               window.location.href = '/api/v1/success/1'
