@@ -22,124 +22,17 @@ function setupForm (intent, stripe) {
     var clientSecret = cardButton.dataset.secret;
     var elements = stripe.elements();
 
-    function registerElements(element) {
-      var example = document.querySelector('.example');
+    var example = document.querySelector('.example');
 
-      var form = example.querySelector('form');
-      var error = form.querySelector('.error');
-      var errorMessage = error.querySelector('.message');
-
-      function enableInputs() {
-        Array.prototype.forEach.call(
-          form.querySelectorAll(
-            "input[type='text'], input[type='email'], input[type='tel']"
-          ),
-          function(input) {
-            input.removeAttribute('disabled');
-          }
-        );
-      }
-
-      function disableInputs() {
-        Array.prototype.forEach.call(
-          form.querySelectorAll(
-            "input[type='text'], input[type='email'], input[type='tel']"
-          ),
-          function(input) {
-            input.setAttribute('disabled', 'true');
-          }
-        );
-      }
-
-      function triggerBrowserValidation() {
-        // The only way to trigger HTML5 form validation UI is to fake a user submit
-        // event.
-        var submit = document.createElement('input');
-        submit.type = 'submit';
-        submit.style.display = 'none';
-        form.appendChild(submit);
-        submit.click();
-        submit.remove();
-      }
-
-      // Listen for errors from each Element, and show error messages in the UI.
-      element.on('change', function(event) {
-        if (event.error) {
-          error.classList.add('visible');
-          errorMessage.innerText = event.error.message;
-        } else {
-          error.classList.remove('visible');
-        }
-      });
-
-      element.on('ready', function(event) {
-        example.classList.remove('submitting');
-      });
-
-      // Listen on the form's 'submit' handler...
-      form.addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        // Trigger HTML5 validation UI on the form if any of the inputs fail
-        // validation.
-        var plainInputsValid = true;
-        Array.prototype.forEach.call(form.querySelectorAll('input'), function(
-          input
-        ) {
-          if (input.checkValidity && !input.checkValidity()) {
-            plainInputsValid = false;
-            return;
-          }
-        });
-        if (!plainInputsValid) {
-          triggerBrowserValidation();
-          return;
-        }
-
-        // Show a loading screen...
-        example.classList.add('submitting');
-
-        // Disable all inputs.
-        disableInputs();
-
-        // Gather additional customer data we may have collected in our form.
-        var name = form.querySelector('#field-name');
-        var email = form.querySelector('#field-email');
-
-        stripe.confirmCardPayment(
-            clientSecret, {
-                payment_method: {
-                    card: element,
-                    billing_details: {
-                        name: name
-                    }
-                }
-            }
-        ).then(function(result) {
-          // Stop loading!
-          example.classList.remove('submitting');
-
-          if (result.paymentIntent) {
-            example.classList.add('submitted');
-            setTimeout(function () {
-                window.location.href = '/api/v1/success/1'
-            }, 1000);
-          } else {
-            error.classList.add('visible');
-            errorMessage.innerText = result.error.message;
-            // Otherwise, un-disable inputs.
-            enableInputs();
-          }
-        });
-      });
-    }
-
+    var form = example.querySelector('form');
+    var error = form.querySelector('.error');
+    var errorMessage = error.querySelector('.message');
 
     if (intent.status == "requires_payment_method" || intent.status == "requires_source") {
         var instructions = document.getElementById('oneOff');
         instructions.classList.add('visible');
 
-        var fieldsets = document.querySelector('.formFields');
+        var fieldsets = form.querySelector('.formFields');
         fieldsets.classList.add('visible');
 
         var card = elements.create('card', {
@@ -167,7 +60,19 @@ function setupForm (intent, stripe) {
         });
 
         card.mount('#card-mount');
-        registerElements(card);
+        // Listen for errors from each Element, and show error messages in the UI.
+        card.on('change', function(event) {
+          if (event.error) {
+            error.classList.add('visible');
+            errorMessage.innerText = event.error.message;
+          } else {
+            error.classList.remove('visible');
+          }
+        });
+
+        card.on('ready', function(event) {
+          example.classList.remove('submitting');
+        });
     } else {
         var instructions = document.getElementById('savedPayment');
         instructions.classList.add('visible');
@@ -175,4 +80,99 @@ function setupForm (intent, stripe) {
         var example = document.querySelector('.example');
         example.classList.remove('submitting');
     }
+
+    function enableInputs() {
+      Array.prototype.forEach.call(
+        form.querySelectorAll(
+          "input[type='text'], input[type='email'], input[type='tel']"
+        ),
+        function(input) {
+          input.removeAttribute('disabled');
+        }
+      );
+    }
+
+    function disableInputs() {
+      Array.prototype.forEach.call(
+        form.querySelectorAll(
+          "input[type='text'], input[type='email'], input[type='tel']"
+        ),
+        function(input) {
+          input.setAttribute('disabled', 'true');
+        }
+      );
+    }
+
+    function triggerBrowserValidation() {
+      // The only way to trigger HTML5 form validation UI is to fake a user submit
+      // event.
+      var submit = document.createElement('input');
+      submit.type = 'submit';
+      submit.style.display = 'none';
+      form.appendChild(submit);
+      submit.click();
+      submit.remove();
+    }
+
+    // Listen on the form's 'submit' handler...
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      // Trigger HTML5 validation UI on the form if any of the inputs fail
+      // validation.
+      var plainInputsValid = true;
+      Array.prototype.forEach.call(form.querySelectorAll('input'), function(
+        input
+      ) {
+        if (input.checkValidity && !input.checkValidity()) {
+          plainInputsValid = false;
+          return;
+        }
+      });
+      if (!plainInputsValid) {
+        triggerBrowserValidation();
+        return;
+      }
+
+      // Show a loading screen...
+      example.classList.add('submitting');
+
+      // Disable all inputs.
+      disableInputs();
+
+      // Gather additional customer data we may have collected in our form.
+      var name = form.querySelector('#field-name');
+      var email = form.querySelector('#field-email');
+
+      var stripeData = {};
+      if (intent.status == "requires_payment_method" || intent.status == "requires_source") {
+        stripeData = {
+          payment_method: {
+            card: card,
+            billing_details: {
+              name: name
+            }
+          }
+        };
+      }
+
+      stripe.confirmCardPayment(
+          clientSecret, stripeData
+      ).then(function(result) {
+        // Stop loading!
+        example.classList.remove('submitting');
+
+        if (result.paymentIntent) {
+          example.classList.add('submitted');
+          setTimeout(function () {
+              window.location.href = '/api/v1/success/1'
+          }, 1000);
+        } else {
+          error.classList.add('visible');
+          errorMessage.innerText = result.error.message;
+          // Otherwise, un-disable inputs.
+          enableInputs();
+        }
+      });
+    });
 }
