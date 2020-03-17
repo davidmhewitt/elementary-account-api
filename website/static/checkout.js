@@ -22,9 +22,9 @@ function setupForm (intent, stripe) {
     var clientSecret = cardButton.dataset.secret;
     var elements = stripe.elements();
 
-    var example = document.querySelector('.example');
+    var form_container = document.querySelector('.form-container');
 
-    var form = example.querySelector('form');
+    var form = form_container.querySelector('form');
     var error = form.querySelector('.error');
     var errorMessage = error.querySelector('.message');
 
@@ -68,7 +68,7 @@ function setupForm (intent, stripe) {
         });
 
         card.on('ready', function(event) {
-          example.classList.remove('submitting');
+          form_container.classList.remove('submitting');
         });
     } else {
         var fieldsets = form.querySelector('.formFields');
@@ -77,8 +77,7 @@ function setupForm (intent, stripe) {
         var instructions = document.getElementById('savedPayment');
         instructions.classList.add('visible');
 
-        var example = document.querySelector('.example');
-        example.classList.remove('submitting');
+        form_container.classList.remove('submitting');
     }
 
     function enableInputs() {
@@ -135,7 +134,7 @@ function setupForm (intent, stripe) {
       }
 
       // Show a loading screen...
-      example.classList.add('submitting');
+      form_container.classList.add('submitting');
 
       // Disable all inputs.
       disableInputs();
@@ -160,10 +159,10 @@ function setupForm (intent, stripe) {
           clientSecret, stripeData
       ).then(function(result) {
         // Stop loading!
-        example.classList.remove('submitting');
+        form_container.classList.remove('submitting');
 
         if (result.paymentIntent) {
-          example.classList.add('submitted');
+          form_container.classList.add('submitted');
           setTimeout(function () {
               window.location.href = '/api/v1/success/1'
           }, 1000);

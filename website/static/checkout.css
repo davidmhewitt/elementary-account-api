@@ -107,7 +107,7 @@ main {
     margin-top: 70px
 }
 
-.container-lg .example {
+.container-lg .form-container {
     -ms-flex-align: center;
     align-items: center;
     border-radius: 4px;
@@ -118,45 +118,45 @@ main {
 }
 
 @media (min-width:670px) {
-    .container-lg .example {
+    .container-lg .form-container {
         padding: 40px
     }
 }
 
-.container-lg .example.submitted form,.container-lg .example.submitting form {
+.container-lg .form-container.submitted form,.container-lg .form-container.submitting form {
     opacity: 0;
     transform: scale(.9);
     pointer-events: none;
     height: 400px
 }
 
-.container-lg .example.submitted .success,.container-lg .example.submitting .success {
+.container-lg .form-container.submitted .success,.container-lg .form-container.submitting .success {
     pointer-events: all
 }
 
-.container-lg .example.submitting .success .icon {
+.container-lg .form-container.submitting .success .icon {
     opacity: 1
 }
 
-.container-lg .example.submitted .success>* {
+.container-lg .form-container.submitted .success>* {
     opacity: 1;
     transform: none!important
 }
 
-.container-lg .example.submitted .success>:nth-child(2) {
+.container-lg .form-container.submitted .success>:nth-child(2) {
     transition-delay: .1s
 }
 
-.container-lg .example.submitted .success>:nth-child(3) {
+.container-lg .form-container.submitted .success>:nth-child(3) {
     transition-delay: .2s
 }
 
-.container-lg .example.submitted .success .icon .border,.container-lg .example.submitted .success .icon .checkmark {
+.container-lg .form-container.submitted .success .icon .border,.container-lg .form-container.submitted .success .icon .checkmark {
     opacity: 1;
     stroke-dashoffset: 0!important
 }
 
-.container-lg .example form {
+.container-lg .form-container form {
     position: relative;
     width: 100%;
     max-width: 500px;
@@ -165,19 +165,19 @@ main {
     transition-timing-function: cubic-bezier(.165,.84,.44,1)
 }
 
-.container-lg .example form input::-webkit-input-placeholder {
+.container-lg .form-container form input::-webkit-input-placeholder {
     opacity: 1
 }
 
-.container-lg .example form input::-moz-placeholder {
+.container-lg .form-container form input::-moz-placeholder {
     opacity: 1
 }
 
-.container-lg .example form input:-ms-input-placeholder {
+.container-lg .form-container form input:-ms-input-placeholder {
     opacity: 1
 }
 
-.container-lg .example .error,.container-lg .example .success {
+.container-lg .form-container .error,.container-lg .form-container .success {
     display: -ms-flexbox;
     display: flex;
     -ms-flex-pack: center;
@@ -187,7 +187,7 @@ main {
     left: 0
 }
 
-.container-lg .example .error {
+.container-lg .form-container .error {
     top: 100%;
     margin-top: 20px;
     padding: 0 15px;
@@ -199,23 +199,23 @@ main {
     transition-timing-function: cubic-bezier(.165,.84,.44,1)
 }
 
-.container-lg .example .error.visible {
+.container-lg .form-container .error.visible {
     opacity: 1;
     transform: none
 }
 
-.container-lg .example .error .message,.container-lg .example .success .message span {
+.container-lg .form-container .error .message,.container-lg .form-container .success .message span {
     font-size: inherit
 }
 
-.container-lg .example .error svg {
+.container-lg .form-container .error svg {
     -ms-flex-negative: 0;
     flex-shrink: 0;
     margin-top: -1px;
     margin-right: 10px
 }
 
-.container-lg .example .success {
+.container-lg .form-container .success {
     -ms-flex-direction: column;
     flex-direction: column;
     -ms-flex-align: center;
@@ -229,12 +229,12 @@ main {
 }
 
 @media (min-width:670px) {
-    .container-lg .example .success {
+    .container-lg .form-container .success {
         padding: 40px
     }
 }
 
-.container-lg .example .success>* {
+.container-lg .form-container .success>* {
     transition-property: opacity,transform;
     transition-duration: .35s;
     transition-timing-function: cubic-bezier(.165,.84,.44,1);
@@ -242,16 +242,16 @@ main {
     transform: translateY(50px)
 }
 
-.container-lg .example .success .icon {
+.container-lg .form-container .success .icon {
     margin: 15px 0 30px;
     transform: translateY(70px) scale(.75)
 }
 
-.container-lg .example .success .icon svg {
+.container-lg .form-container .success .icon svg {
     will-change: transform
 }
 
-.container-lg .example .success .icon .border {
+.container-lg .form-container .success .icon .border {
     stroke-dasharray: 251;
     stroke-dashoffset: 62.75;
     transform-origin: 50% 50%;
@@ -259,50 +259,50 @@ main {
     animation: spin 1s linear infinite
 }
 
-.container-lg .example .success .icon .checkmark {
+.container-lg .form-container .success .icon .checkmark {
     stroke-dasharray: 60;
     stroke-dashoffset: 60;
     transition: stroke-dashoffset .35s cubic-bezier(.165,.84,.44,1) .35s
 }
 
-.container-lg .example .success .title {
+.container-lg .form-container .success .title {
     font-size: 17px;
     font-weight: 500;
     margin-bottom: 8px
 }
 
-.container-lg .example .success .message {
+.container-lg .form-container .success .message {
     font-size: 14px;
     font-weight: 400;
     margin-bottom: 25px;
     line-height: 1.6em
 }
 
-.example {
+.form-container {
     background-color: #fafafa
 }
 
-.example * {
+.form-container * {
     font-family: Open Sans,Segoe UI,sans-serif;
     font-size: 9pt
 }
 
-.container-lg .example h1 {
+.container-lg .form-container h1 {
     font-weight: 700;
     font-size: 1.2em;
     margin: 0 15px 6px
 }
 
-.example .descriptionText {
+.form-container .descriptionText {
     margin: 0 15px 6px;
     display: none
 }
 
-.example .descriptionText.visible {
+.form-container .descriptionText.visible {
     display: block
 }
 
-.example fieldset {
+.form-container fieldset {
     margin: 0 15px 20px;
     padding: 0;
     border-style: none;
@@ -311,22 +311,22 @@ main {
     border-radius: 2.5px
 }
 
-.example .row {
+.form-container .row {
     display: -ms-flexbox;
     display: flex;
     -ms-flex-align: center;
     align-items: center
 }
 
-.example .row+.row {
+.form-container .row+.row {
     border-top: 1px solid rgba(20,20,20,.08)
 }
 
-.example .row #card-mount,.example label {
+.form-container .row #card-mount,.form-container label {
     margin-left: 15px
 }
 
-.example label {
+.form-container label {
     width: 15%;
     min-width: 70px;
     padding: 11px 0;
@@ -336,7 +336,7 @@ main {
     white-space: nowrap
 }
 
-.example button,.example input {
+.form-container button,.form-container input {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
@@ -344,40 +344,40 @@ main {
     border-style: none
 }
 
-.example input:-webkit-autofill {
+.form-container input:-webkit-autofill {
     -webkit-text-fill-color: #fce883;
     transition: background-color 100000000s;
     -webkit-animation: 1ms void-animation-out
 }
 
-.example .StripeElement--webkit-autofill {
+.form-container .StripeElement--webkit-autofill {
     background: 0 0!important
 }
 
-.example .StripeElement,.example input {
+.form-container .StripeElement,.form-container input {
     width: 100%;
     padding: 11px 15px 11px 0
 }
 
-.example input {
+.form-container input {
     color: #333;
     background-color: transparent;
     -webkit-animation: 1ms void-animation-out
 }
 
-.example input::-webkit-input-placeholder {
+.form-container input::-webkit-input-placeholder {
     color: #abacae
 }
 
-.example input::-moz-placeholder {
+.form-container input::-moz-placeholder {
     color: #abacae
 }
 
-.example input:-ms-input-placeholder {
+.form-container input:-ms-input-placeholder {
     color: #abacae
 }
 
-.container-lg .example button {
+.container-lg .form-container button {
     display: block;
     height: 30px;
     padding-left: 20px;
@@ -391,30 +391,30 @@ main {
     cursor: pointer
 }
 
-.example .error svg .base {
+.form-container .error svg .base {
     fill: #c6262e
 }
 
-.example .error svg .glyph {
+.form-container .error svg .glyph {
     fill: #fff
 }
 
-.example .error .message {
+.form-container .error .message {
     color: #c6262e
 }
 
-.example .success .icon .border {
+.form-container .success .icon .border {
     stroke: #87bbfd
 }
 
-.example .success .icon .checkmark {
+.form-container .success .icon .checkmark {
     stroke: #68b723
 }
 
-.example .success .title {
+.form-container .success .title {
     color: #333
 }
 
-.example .success .message {
+.form-container .success .message {
     color: #9cdbff
 }
