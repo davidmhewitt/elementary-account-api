@@ -149,7 +149,7 @@ function setupForm (intent, stripe) {
                 iconColor: '#abacae',
                 color: '#333',
                 fontFamily: 'Open Sans, Segoe UI, sans-serif',
-                fontSize: '9pt',
+                fontSize: '12px',
                 fontSmoothing: 'antialiased',
 
                 ':-webkit-autofill': {
