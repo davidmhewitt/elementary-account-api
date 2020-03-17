@@ -22,11 +22,10 @@ function setupForm (intent, stripe) {
     var clientSecret = cardButton.dataset.secret;
     var elements = stripe.elements();
 
-    function registerElements(element, exampleName) {
+    function registerElements(element) {
       var example = document.querySelector('.example');
 
       var form = example.querySelector('form');
-      var resetButton = example.querySelector('a.reset');
       var error = form.querySelector('.error');
       var errorMessage = error.querySelector('.message');
 
@@ -104,8 +103,8 @@ function setupForm (intent, stripe) {
         disableInputs();
 
         // Gather additional customer data we may have collected in our form.
-        var name = form.querySelector('#' + exampleName + '-name');
-        var email = form.querySelector('#' + exampleName + '-email');
+        var name = form.querySelector('#field-name');
+        var email = form.querySelector('#field-email');
 
         stripe.confirmCardPayment(
             clientSecret, {
@@ -126,6 +125,8 @@ function setupForm (intent, stripe) {
                 window.location.href = '/api/v1/success/1'
             }, 1000);
           } else {
+            error.classList.add('visible');
+            errorMessage.innerText = result.error.message;
             // Otherwise, un-disable inputs.
             enableInputs();
           }
@@ -166,7 +167,7 @@ function setupForm (intent, stripe) {
         });
 
         card.mount('#card-mount');
-        registerElements(card, "example1");
+        registerElements(card);
     } else {
         var instructions = document.getElementById('savedPayment');
         instructions.classList.add('visible');
