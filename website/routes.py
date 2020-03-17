@@ -151,7 +151,8 @@ def intent_do_charge():
 
     args = request.args
 
-    if customer and 'deleted' not in customer:
+    # Clone payment method from platform account customer to temporary payment method
+    if customer and 'deleted' not in customer and args.get('payment_method'):
         payment_method = stripe.PaymentMethod.create(
           customer=customer_id,
           payment_method=args.get('payment_method'),
