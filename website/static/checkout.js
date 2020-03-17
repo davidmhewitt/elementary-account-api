@@ -32,9 +32,6 @@ function setupForm (intent, stripe) {
         var instructions = document.getElementById('oneOff');
         instructions.classList.add('visible');
 
-        var fieldsets = form.querySelector('.formFields');
-        fieldsets.classList.add('visible');
-
         var card = elements.create('card', {
             iconStyle: 'solid',
             style: {
@@ -74,6 +71,9 @@ function setupForm (intent, stripe) {
           example.classList.remove('submitting');
         });
     } else {
+        var fieldsets = form.querySelector('.formFields');
+        fieldsets.parentNode.removeChild(fieldsets);
+
         var instructions = document.getElementById('savedPayment');
         instructions.classList.add('visible');
 
