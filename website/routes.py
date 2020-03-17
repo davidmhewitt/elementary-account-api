@@ -183,7 +183,21 @@ def intent_do_charge():
             stripe_account=args.get('stripe_account'),
         )
 
-    return render_template('checkout.html', client_secret=payment_intent.client_secret, developer_account=args.get('stripe_account'))
+    if payment_method:
+        return render_template('checkout.html',
+            client_secret=payment_intent.client_secret,
+            developer_account=args.get('stripe_account'),
+            app_name="Torrential",
+            amount=math.floor(int(args.get('amount'))/100),
+            last_four=payment_method.card.last4
+        )
+    else:
+        return render_template('checkout.html',
+            client_secret=payment_intent.client_secret,
+            developer_account=args.get('stripe_account'),
+            app_name="Torrential",
+            amount=math.floor(int(args.get('amount'))/100)
+        )
 
 @bp.route('/api/v1/delete_card/<card_id>', methods=['post'])
 @require_oauth('profile')

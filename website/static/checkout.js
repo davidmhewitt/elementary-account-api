@@ -22,10 +22,7 @@ function setupForm (intent, stripe) {
     var clientSecret = cardButton.dataset.secret;
     var elements = stripe.elements();
 
-    cardButton.innerText = "Pay $" + (intent.amount / 100);
-    cardButton.classList.add('visible');
-
-    function registerElements(elements, exampleName) {
+    function registerElements(element, exampleName) {
       var formClass = '.' + exampleName;
       var example = document.querySelector(formClass);
 
@@ -69,31 +66,33 @@ function setupForm (intent, stripe) {
 
       // Listen for errors from each Element, and show error messages in the UI.
       var savedErrors = {};
-      elements.forEach(function(element, idx) {
-        element.on('change', function(event) {
-          if (event.error) {
-            error.classList.add('visible');
-            savedErrors[idx] = event.error.message;
-            errorMessage.innerText = event.error.message;
+      element.on('change', function(event) {
+        if (event.error) {
+          error.classList.add('visible');
+          savedErrors[idx] = event.error.message;
+          errorMessage.innerText = event.error.message;
+        } else {
+          savedErrors[idx] = null;
+
+          // Loop over the saved errors and find the first one, if any.
+          var nextError = Object.keys(savedErrors)
+            .sort()
+            .reduce(function(maybeFoundError, key) {
+              return maybeFoundError || savedErrors[key];
+            }, null);
+
+          if (nextError) {
+            // Now that they've fixed the current error, show another one.
+            errorMessage.innerText = nextError;
           } else {
-            savedErrors[idx] = null;
-
-            // Loop over the saved errors and find the first one, if any.
-            var nextError = Object.keys(savedErrors)
-              .sort()
-              .reduce(function(maybeFoundError, key) {
-                return maybeFoundError || savedErrors[key];
-              }, null);
-
-            if (nextError) {
-              // Now that they've fixed the current error, show another one.
-              errorMessage.innerText = nextError;
-            } else {
-              // The user fixed the last error; no more errors.
-              error.classList.remove('visible');
-            }
+            // The user fixed the last error; no more errors.
+            error.classList.remove('visible');
           }
-        });
+        }
+      });
+
+      element.on('ready', function(event) {
+        example.classList.remove('submitting');
       });
 
       // Listen on the form's 'submit' handler...
@@ -129,7 +128,7 @@ function setupForm (intent, stripe) {
         stripe.confirmCardPayment(
             clientSecret, {
                 payment_method: {
-                    card: elements[0],
+                    card: element,
                     billing_details: {
                         name: name
                     }
@@ -153,7 +152,13 @@ function setupForm (intent, stripe) {
     }
 
 
-    if (intent.status === "requires_payment_method" || intent.status === "requires_source") {
+    if (intent.status == "requires_payment_method" || intent.status == "requires_source") {
+        var instructions = document.getElementById('oneOff');
+        instructions.classList.add('visible');
+
+        var fieldsets = document.querySelector('.formFields');
+        fieldsets.classList.add('visible');
+
         var card = elements.create('card', {
             iconStyle: 'solid',
             style: {
@@ -179,6 +184,12 @@ function setupForm (intent, stripe) {
         });
 
         card.mount('#card-mount');
-        registerElements([card], "example1");
+        registerElements(card, "example1");
+    } else {
+        var instructions = document.getElementById('savedPayment');
+        instructions.classList.add('visible');
+
+        var example = document.querySelector('.example1');
+        example.classList.remove('submitting');
     }
 }
