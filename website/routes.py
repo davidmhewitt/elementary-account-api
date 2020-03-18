@@ -7,7 +7,7 @@ from authlib.integrations.flask_oauth2 import current_token
 from authlib.oauth2 import OAuth2Error
 from .models import db, User, OAuth2Client
 from .oauth2 import authorization, require_oauth
-from .stripe import stripe
+from .stripe import stripe, intent_succeeded_signing_key
 
 bp = Blueprint(__name__, 'home')
 
@@ -228,3 +228,22 @@ def api_get_cards():
 @bp.route('/api/v1/success/<code>')
 def api_success(code):
     return render_template('success.html', success_code=code)
+
+@bp.route('/webhooks/payment_succeeded')
+def webhook_success():
+  payload = request.get_data()
+  sig_header = request.headers.get('STRIPE_SIGNATURE')
+  event = None
+
+  try:
+    event = stripe.Webhook.construct_event(
+      payload, sig_header, intent_succeeded_signing_key
+    )
+  except ValueError as e:
+    return "Invalid payload", 400
+  except stripe.error.SignatureVerificationError as e:
+    return "Invalid signature", 400
+
+  event_dict = event.to_dict()
+
+  return "OK", 200
