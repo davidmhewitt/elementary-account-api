@@ -68,7 +68,7 @@ class Purchase(db.Model):
 
 class AnonymousPurchase(db.Model):
     __tablename__ = 'anon_purchases'
-    uuid = db.Column(db.String, primary_key = True)
+    anon_id = db.Column(db.String, primary_key = True)
     app_id = db.Column(db.String)
 
     def save_to_db(self):
@@ -76,8 +76,8 @@ class AnonymousPurchase(db.Model):
         db.session.commit()
 
     @classmethod
-    def find_purchase(cls, uuid):
-        return cls.query.filter_by(uuid = uuid).first()
+    def find_purchase(cls, anon_id):
+        return cls.query.filter_by(anon_id = anon_id).first()
 
 class Application(db.Model):
     __tablename__ = "applications"

@@ -173,12 +173,12 @@ def intent_do_charge():
         fee = 50
 
     app_id = args.get('app_id')
-    anon_uuid = request.headers.get('APPCENTER_ANON_PURCHASE_UUID')
+    anon_id = args.get('anon_id')
 
     stripe_metadata = {
         'app_id': app_id,
         'user_id': user_id,
-        'uuid': anon_uuid
+        'anon_id': anon_id
     }
 
     if payment_method:
@@ -269,7 +269,7 @@ def webhook_success():
     intent = event_dict['data']['object']
     user_id = intent['metadata']['user_id']
     app_id = intent['metadata']['app_id']
-    uuid = intent['metadata']['uuid']
+    anon_id = intent['metadata']['anon_id']
 
     if app_id and user_id:
         purchase = Purchase(
@@ -278,10 +278,10 @@ def webhook_success():
         )
 
         purchase.save_to_db()
-    elif app_id and uuid:
+    elif app_id and anon_id:
         purchase = AnonymousPurchase(
             app_id = app_id,
-            uuid = uuid
+            anon_id = anon_id
         )
 
         purchase.save_to_db()
