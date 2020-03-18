@@ -121,7 +121,7 @@ def revoke_token():
 @require_oauth('profile')
 def api_me():
     user = current_token.user
-    return jsonify(id=user.id, stripe=user.stripe_customer_id, username=user.username)
+    return jsonify(username=user.username)
 
 @bp.route('/intents/add_card')
 @require_oauth('profile')
