@@ -6,7 +6,7 @@ from flask import Blueprint, request, session, render_template, redirect, jsonif
 from werkzeug.security import gen_salt
 from authlib.integrations.flask_oauth2 import current_token
 from authlib.oauth2 import OAuth2Error
-from .models import db, User, OAuth2Client, Purchase
+from .models import db, User, OAuth2Client, Purchase, Application
 from .oauth2 import authorization, require_oauth
 from .secrets import stripe, secrets
 
@@ -285,3 +285,17 @@ def api_get_tokens():
         'denied': denied,
         'tokens': tokens
     }
+
+@bp.route('/api/v1/app/<app_id>')
+def api_get_app(app_id):
+    app = Application.find_by_id(app_id)
+    if not app:
+        return {}, 404
+    else:
+        return {
+            "id": app.app_id,
+            "name": app.name,
+            "stripe_key": app.stripe_key,
+            "recommended_amount": app.recommended_amount
+        }
+
