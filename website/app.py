@@ -3,7 +3,7 @@ from flask import Flask
 from .models import db
 from .oauth2 import config_oauth
 from .routes import bp
-from .stripe import init_stripe
+from .secrets import init_stripe
 
 def create_app(config=None):
     app = Flask(__name__)
