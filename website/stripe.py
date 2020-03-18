@@ -1,7 +1,7 @@
 import stripe
 
-intent_succeeded_signing_key = None
+secrets = {}
 
 def init_stripe(app):
     stripe.api_key = app.config['STRIPE_KEY']
-    intent_succeeded_signing_key = app.config['STRIPE_INTENT_SUCCESS_SIGNING_SECRET']
+    secrets['intent_succeeded_signing_key'] = app.config['STRIPE_INTENT_SUCCESS_SIGNING_SECRET']
