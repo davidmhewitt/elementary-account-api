@@ -6,7 +6,7 @@ from flask import Blueprint, request, session, render_template, redirect, jsonif
 from werkzeug.security import gen_salt
 from authlib.integrations.flask_oauth2 import current_token
 from authlib.oauth2 import OAuth2Error
-from .models import db, User, OAuth2Client, Purchase, Application
+from .models import db, User, OAuth2Client, AnonymousPurchase, Purchase, Application
 from .oauth2 import authorization, require_oauth
 from .secrets import stripe, secrets
 
