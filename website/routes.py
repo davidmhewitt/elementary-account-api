@@ -267,9 +267,15 @@ def webhook_success():
   event_dict = event.to_dict()
   if event_dict['type'] == "payment_intent.succeeded":
     intent = event_dict['data']['object']
-    user_id = intent['metadata']['user_id']
-    app_id = intent['metadata']['app_id']
-    anon_id = intent['metadata']['anon_id']
+    user_id = None
+    app_id = None
+    anon_id = None
+    if 'user_id' in intent['metadata']:
+        user_id = intent['metadata']['user_id']
+    if 'app_id' in intent['metadata']:
+        app_id = intent['metadata']['app_id']
+    if 'anon_id' in intent['metadata']:
+        anon_id = intent['metadata']['anon_id']
 
     if app_id and user_id:
         purchase = Purchase(
