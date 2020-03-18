@@ -144,9 +144,9 @@ def intent_create_card():
 
     return render_template('card_wallet.html', client_secret=intent.client_secret)
 
-@bp.route('/intents/do_charge/<app_id>')
+@bp.route('/intents/do_charge')
 @require_oauth('profile', optional=True)
-def intent_do_charge(app_id):
+def intent_do_charge():
     user_id = None
     if current_token:
         user = current_token.user
@@ -172,6 +172,7 @@ def intent_do_charge(app_id):
     if fee < 50:
         fee = 50
 
+    app_id = args.get('app_id')
     anon_uuid = request.headers.get('APPCENTER_ANON_PURCHASE_UUID')
 
     stripe_metadata = {
