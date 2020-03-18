@@ -128,6 +128,7 @@ def api_me():
 def intent_create_card():
     user = current_token.user
 
+    customer = None
     if user.stripe_customer_id:
         customer = stripe.Customer.retrieve(user.stripe_customer_id)
 
@@ -143,11 +144,13 @@ def intent_create_card():
 
     return render_template('card_wallet.html', client_secret=intent.client_secret)
 
-@bp.route('/intents/do_charge')
+@bp.route('/intents/do_charge/<app_id>')
 @require_oauth('profile', optional=True)
-def intent_do_charge():
+def intent_do_charge(app_id):
+    user_id = None
     if current_token:
         user = current_token.user
+        user_id = user.id
         customer_id = user.stripe_customer_id
         customer = stripe.Customer.retrieve(user.stripe_customer_id)
     else:
@@ -169,6 +172,14 @@ def intent_do_charge():
     if fee < 50:
         fee = 50
 
+    anon_uuid = request.headers.get('APPCENTER_ANON_PURCHASE_UUID')
+
+    stripe_metadata = {
+        'app_id': app_id,
+        'user_id': user_id,
+        'uuid': anon_uuid
+    }
+
     if payment_method:
         payment_intent = stripe.PaymentIntent.create(
             amount=args.get('amount'),
@@ -177,6 +188,7 @@ def intent_do_charge():
             payment_method_types=['card'],
             application_fee_amount=fee,
             stripe_account=args.get('stripe_account'),
+            metadata=stripe_metadata
         )
     else:
         payment_intent = stripe.PaymentIntent.create(
@@ -185,6 +197,7 @@ def intent_do_charge():
             payment_method_types=['card'],
             application_fee_amount=fee,
             stripe_account=args.get('stripe_account'),
+            metadata=stripe_metadata
         )
 
     if payment_method:
@@ -251,6 +264,26 @@ def webhook_success():
     return "Invalid signature", 400
 
   event_dict = event.to_dict()
+  if event_dict['type'] == "payment_intent.succeeded":
+    intent = event_dict['data']['object']
+    user_id = intent['metadata']['user_id']
+    app_id = intent['metadata']['app_id']
+    uuid = intent['metadata']['uuid']
+
+    if app_id and user_id:
+        purchase = Purchase(
+            app_id = app_id,
+            user_id = user_id
+        )
+
+        purchase.save_to_db()
+    elif app_id and uuid:
+        purchase = AnonymousPurchase(
+            app_id = app_id,
+            uuid = uuid
+        )
+
+        purchase.save_to_db()
 
   return "OK", 200
 
@@ -298,4 +331,21 @@ def api_get_app(app_id):
             "stripe_key": app.stripe_key,
             "recommended_amount": app.recommended_amount
         }
+
+@bp.route('/api/v1/get_temp_token')
+def api_get_temp_token():
+    data = request.get_json()
+    app_id = data['id']
+
+    tokens = {}
+    tokens[app_id] = jwt.encode({
+        'sub': 'users/%d' % 0,
+        'prefixes': [app_id],
+        'exp': datetime.utcnow() + shortRepoTokenLifetime,
+        'name': 'auth.py',
+    }, secrets['REPO_SIGNING_KEY'], algorithm='HS256').decode('utf-8')
+
+    return {
+        'tokens': tokens
+    }
 
