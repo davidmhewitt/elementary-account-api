@@ -51,3 +51,17 @@ class OAuth2Token(db.Model, OAuth2TokenMixin):
             return False
         expires_at = self.issued_at + self.expires_in * 2
         return expires_at >= time.time()
+
+class Purchase(db.Model):
+    __tablename__ = 'purchases'
+    app_id = db.Column(db.String, primary_key = True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
+    until = db.Column(db.DateTime(timezone=True))
+
+    def save_to_db(self):
+        db.session.add(self)
+        db.session.commit()
+
+    @classmethod
+    def find_purchase(cls, user, app_id):
+        return cls.query.filter_by(user_id = user, app_id = app_id).first()

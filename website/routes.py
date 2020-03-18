@@ -1,14 +1,17 @@
 import time
 import math
-from flask import Blueprint, request, session
-from flask import render_template, redirect, jsonify
+import jwt
+from datetime import datetime, timedelta
+from flask import Blueprint, request, session, render_template, redirect, jsonify
 from werkzeug.security import gen_salt
 from authlib.integrations.flask_oauth2 import current_token
 from authlib.oauth2 import OAuth2Error
-from .models import db, User, OAuth2Client
+from .models import db, User, OAuth2Client, Purchase
 from .oauth2 import authorization, require_oauth
-from .stripe import stripe
-from .stripe import secrets as stripe_secrets
+from .secrets import stripe, secrets
+
+shortRepoTokenLifetime = timedelta(minutes=10)
+longRepoTokenLifetime = timedelta(days=3650)
 
 bp = Blueprint(__name__, 'home')
 
@@ -220,11 +223,13 @@ def api_get_cards():
 
     if user.stripe_customer_id:
         cards = stripe.PaymentMethod.list(customer=user.stripe_customer_id, type="card")
+    else:
+        return jsonify(sources=[])
 
     if cards:
         return jsonify(sources=cards['data'])
 
-    return jsonify([])
+    return jsonify(sources=[])
 
 @bp.route('/api/v1/success/<code>')
 def api_success(code):
@@ -238,7 +243,7 @@ def webhook_success():
 
   try:
     event = stripe.Webhook.construct_event(
-      payload, sig_header, stripe_secrets['intent_succeeded_signing_key']
+      payload, sig_header, secrets['INTENT_SUCCEEDED_SIGNING_KEY']
     )
   except ValueError as e:
     return "Invalid payload", 400
@@ -248,3 +253,35 @@ def webhook_success():
   event_dict = event.to_dict()
 
   return "OK", 200
+
+@bp.route('/api/v1/get_tokens', methods=['POST'])
+@require_oauth('profile', optional=True)
+def api_get_tokens():
+    current_user = None
+    if current_token:
+        current_user = current_token.user
+
+    logged_in = current_user is not None
+
+    data = request.get_json()
+
+    denied = []
+    tokens = {}
+    for app_id in data['ids']:
+        denied.append(app_id)
+
+    if logged_in:
+        for app_id in denied:
+            if Purchase.find_purchase(current_user.id, app_id):
+                denied.remove(app_id)
+                tokens[app_id] = jwt.encode({
+                    'sub': 'users/%d' % current_user.id,
+                    'prefixes': [app_id],
+                    'exp': datetime.utcnow() + longRepoTokenLifetime,
+                    'name': 'auth.py',
+                }, secrets['REPO_SIGNING_KEY'], algorithm='HS256').decode('utf-8')
+
+    return {
+        'denied': denied,
+        'tokens': tokens
+    }
