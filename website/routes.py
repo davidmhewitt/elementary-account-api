@@ -175,7 +175,6 @@ def intent_do_charge():
     if fee < 50:
         fee = 50
 
-
     anon_id = args.get('anon_id')
 
     stripe_metadata = {
@@ -198,21 +197,17 @@ def intent_do_charge():
 
     payment_intent = stripe.PaymentIntent.create(**intent_args)
 
+    render_args = {
+        'client_secret': payment_intent.client_secret,
+        'developer_account': stripe_account,
+        'app_name': application.name,
+        'amount': math.floor(int(args.get('amount'))/100)
+    }
+
     if payment_method:
-        return render_template('checkout.html',
-            client_secret=payment_intent.client_secret,
-            developer_account=stripe_account,
-            app_name=application.name,
-            amount=math.floor(int(args.get('amount'))/100),
-            last_four=payment_method.card.last4
-        )
-    else:
-        return render_template('checkout.html',
-            client_secret=payment_intent.client_secret,
-            developer_account=stripe_account,
-            app_name=application.name,
-            amount=math.floor(int(args.get('amount'))/100)
-        )
+        render_args['last_four'] = payment_method.card.last4
+
+    return render_template('checkout.html', **render_args)
 
 @bp.route('/api/v1/delete_card/<card_id>', methods=['post'])
 @require_oauth('profile')
