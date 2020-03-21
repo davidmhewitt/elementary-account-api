@@ -100,7 +100,6 @@ main {
     -ms-flex: auto;
     flex: auto;
     min-width: 100%;
-    padding: 0 40px
 }
 
 .container-lg .cell+.cell {
@@ -183,7 +182,6 @@ main {
 .container-lg .form-container .error {
     top: 100%;
     margin-top: 20px;
-    padding: 0 15px;
     font-size: 13px!important;
     opacity: 0;
     transform: translateY(10px);
@@ -215,16 +213,9 @@ main {
     align-items: center;
     height: 100%;
     top: 0;
-    padding: 10px;
     text-align: center;
     pointer-events: none;
     overflow: hidden
-}
-
-@media (min-width:670px) {
-    .container-lg .form-container .success {
-        padding: 40px
-    }
 }
 
 .container-lg .form-container .success>* {
