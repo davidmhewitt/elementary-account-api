@@ -158,21 +158,24 @@ def intent_do_charge():
 
     args = request.args
 
+    app_id = args.get('app_id')
+    application = Application.find_by_id(app_id)
+    stripe_account = application.stripe_key
+
+    payment_method = None
     # Clone payment method from platform account customer to temporary payment method
     if customer and 'deleted' not in customer and args.get('payment_method'):
         payment_method = stripe.PaymentMethod.create(
           customer=customer_id,
           payment_method=args.get('payment_method'),
-          stripe_account=args.get('stripe_account'),
+          stripe_account=stripe_account,
         )
-    else:
-        payment_method = ""
 
     fee = math.ceil(int(args.get('amount')) * 0.3)
     if fee < 50:
         fee = 50
 
-    app_id = args.get('app_id')
+
     anon_id = args.get('anon_id')
 
     stripe_metadata = {
@@ -181,39 +184,33 @@ def intent_do_charge():
         'anon_id': anon_id
     }
 
+    intent_args = {
+        'amount': args.get('amount'),
+        'currency': 'USD',
+        'payment_method_types': ['card'],
+        'application_fee_amount': fee,
+        'stripe_account': stripe_account,
+        'metadata': stripe_metadata
+    }
+
     if payment_method:
-        payment_intent = stripe.PaymentIntent.create(
-            amount=args.get('amount'),
-            currency='USD',
-            payment_method=payment_method,
-            payment_method_types=['card'],
-            application_fee_amount=fee,
-            stripe_account=args.get('stripe_account'),
-            metadata=stripe_metadata
-        )
-    else:
-        payment_intent = stripe.PaymentIntent.create(
-            amount=args.get('amount'),
-            currency='USD',
-            payment_method_types=['card'],
-            application_fee_amount=fee,
-            stripe_account=args.get('stripe_account'),
-            metadata=stripe_metadata
-        )
+        intent_args['payment_method'] = payment_method
+
+    payment_intent = stripe.PaymentIntent.create(**intent_args)
 
     if payment_method:
         return render_template('checkout.html',
             client_secret=payment_intent.client_secret,
-            developer_account=args.get('stripe_account'),
-            app_name="Torrential",
+            developer_account=stripe_account,
+            app_name=application.name,
             amount=math.floor(int(args.get('amount'))/100),
             last_four=payment_method.card.last4
         )
     else:
         return render_template('checkout.html',
             client_secret=payment_intent.client_secret,
-            developer_account=args.get('stripe_account'),
-            app_name="Torrential",
+            developer_account=stripe_account,
+            app_name=application.name,
             amount=math.floor(int(args.get('amount'))/100)
         )
 
