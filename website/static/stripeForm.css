@@ -371,13 +371,17 @@ main {
     height: 30px;
     padding-left: 20px;
     padding-right: 20px;
-    margin: 20px 15px 0 0;
-    background-image: linear-gradient(#42abff,#0f94ff);
+    margin: 6px 6px 0 0;
     box-shadow: inset 0 0 0 1px rgba(255,255,255,.05),inset 0 1px 0 0 rgba(255,255,255,.25),inset 0 -1px 0 0 rgba(255,255,255,.1),0 1px 0 0 rgba(255,255,255,.15);
     border-radius: 2.5px;
+    color: #333;
     border: 1px solid rgba(0,0,0,.3);
-    color: #fff;
     cursor: pointer
+}
+
+.container-lg .form-container button.suggested-action {
+    color: #fff;
+    background-image: linear-gradient(#42abff,#0f94ff);
 }
 
 .form-container .error svg .base {
