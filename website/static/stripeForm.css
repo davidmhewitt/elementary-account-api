@@ -225,20 +225,12 @@ main {
     transform: translateY(50px)
 }
 
-.container-lg .form-container .success .icon {
-    margin: 15px 0 30px;
-    transform: translateY(70px) scale(.75)
-}
-
 .container-lg .form-container .success .icon svg {
     will-change: transform
 }
 
-.container-lg .form-container .success .icon .border {
-    stroke-dasharray: 251;
-    stroke-dashoffset: 62.75;
+.container-lg .form-container .success .icon {
     transform-origin: 50% 50%;
-    transition: stroke-dashoffset .35s cubic-bezier(.165,.84,.44,1);
     animation: spin 1s linear infinite
 }
 
