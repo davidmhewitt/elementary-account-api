@@ -114,7 +114,7 @@ function setupForm (intent, stripe) {
       submit.remove();
     }
 
-    cancelButton.addEventListener('click', functon (e) {
+    cancelButton.addEventListener('click', function (e) {
         window.close();
     });
 
