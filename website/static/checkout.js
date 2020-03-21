@@ -19,6 +19,7 @@ window.onload = function(e){
 
 function setupForm (intent, stripe) {
     var cardButton = document.getElementById('card-button');
+    var cancelButton = document.getElementById('cancel-button');
     var clientSecret = cardButton.dataset.secret;
     var elements = stripe.elements();
 
@@ -112,6 +113,10 @@ function setupForm (intent, stripe) {
       submit.click();
       submit.remove();
     }
+
+    cancelButton.addEventListener('click', functon (e) {
+        window.close();
+    });
 
     // Listen on the form's 'submit' handler...
     form.addEventListener('submit', function(e) {
